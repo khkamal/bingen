@@ -1,624 +1,261 @@
-<script src='//libtl.com/sdk.js' data-zone='10218802' data-sdk='show_10218802'></script><!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bin-Gen</title>
-    
-    <!-- Your New Ad Code -->
- <script src='//libtl.com/sdk.js' data-zone='10218802' data-sdk='show_10218802'></script>
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        body { font-family: 'Inter', sans-serif; background-color: #121212; color: #ffffff; }
-        .dark-bg { background-color: #121212; }
-        .card-bg { background-color: #1e1e1e; }
-        .border-accent { border-color: #ff8c00; }
-        .text-accent { color: #ff8c00; }
-        .btn, .btn-accent, .btn-outline-accent { transition: all 0.2s ease-in-out; transform: scale(1); }
-        .btn:active, .btn-accent:active, .btn-outline-accent:active { transform: scale(0.95); }
-        .btn-accent { background-color: #ff8c00; color: #121212; font-weight: bold; }
-        .btn-accent:hover { background-color: #e67e00; }
-        .btn-outline-accent { border: 1px solid #ff8c00; color: #ff8c00; }
-        .btn-outline-accent:hover { background-color: #ff8c00; color: #121212; }
-        .input-field { background-color: #2c2c2c; border: 1px solid #444; }
-        .main-page { display: none; }
-        .main-page.active { display: flex; animation: fadeIn 0.5s ease-in-out; }
-        .sub-page { display: none; }
-        .sub-page.active { display: block; animation: fadeIn 0.3s ease-in-out; }
-        .bottom-nav a.active { color: #ff8c00; }
-        .notification-dot {
-            position: absolute; top: -2px; right: -2px; width: 10px; height: 10px;
-            background-color: #ef4444; border-radius: 50%; border: 2px solid #121212; display: none;
-        }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>TG Mini - BIN Tool</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>body{font-family:Inter,system-ui,Arial;background:#f8fafc}</style>
+  <!-- Monetag SDK (you provided) -->
+  <script src="//libtl.com/sdk.js" data-zone="10218802" data-sdk="show_10218802"></script>
 </head>
-<body class="max-w-md mx-auto">
+<body class="p-4">
+  <div class="max-w-3xl mx-auto">
+    <h1 class="text-2xl font-bold mb-4">TG Mini — BIN Generator & Checker</h1>
 
-    <!-- App Loader -->
-    <div id="loader" class="hidden fixed inset-0 dark-bg bg-opacity-75 flex items-center justify-center z-50">
-        <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-accent"></div>
+    <div id="status" class="mb-4 text-sm text-gray-600"></div>
+
+    <!-- Generator -->
+    <div class="bg-white p-4 rounded shadow mb-4">
+      <h2 class="font-semibold mb-2">BIN Generator</h2>
+      <p class="text-xs text-gray-500 mb-2">Write like: <code>gen 5598880089</code></p>
+      <input id="gen-input" class="w-full p-2 border rounded mb-2" placeholder="gen 5598880089" />
+      <div class="flex gap-2">
+        <button id="gen-btn" class="px-4 py-2 bg-indigo-600 text-white rounded">Generate</button>
+        <button id="copy-gen" class="px-4 py-2 bg-gray-200 rounded">Copy Output</button>
+      </div>
+      <pre id="gen-output" class="mt-3 p-3 bg-gray-50 rounded min-h-[120px] text-sm"></pre>
     </div>
 
-    <!-- Authentication Section -->
-    <div id="auth-section" class="min-h-screen p-6 flex-col justify-center main-page">
-        <h1 class="text-4xl font-bold text-center mb-2 text-accent">CashReward</h1>
-        <p class="text-center text-gray-400 mb-8">Login or Signup to continue</p>
-        <div id="auth-container">
-            <div id="login-view">
-                <input id="login-email" type="email" placeholder="Email" class="w-full p-3 rounded-lg input-field mb-4">
-                <input id="login-password" type="password" placeholder="Password" class="w-full p-3 rounded-lg input-field mb-4">
-                <button id="login-btn" class="w-full p-3 rounded-lg btn-accent mb-4">Login</button>
-                <p class="text-center text-gray-400">Don't have an account? <a href="#" id="show-signup" class="font-semibold text-accent">Sign Up</a></p>
-            </div>
-            <div id="signup-view" class="hidden">
-                 <input id="signup-name" type="text" placeholder="Full Name" class="w-full p-3 rounded-lg input-field mb-4">
-                <input id="signup-email" type="email" placeholder="Email" class="w-full p-3 rounded-lg input-field mb-4">
-                <input id="signup-password" type="password" placeholder="Password" class="w-full p-3 rounded-lg input-field mb-4">
-                <button id="signup-btn" class="w-full p-3 rounded-lg btn-accent mb-4">Sign Up</button>
-                <p class="text-center text-gray-400">Already have an account? <a href="#" id="show-login" class="font-semibold text-accent">Login</a></p>
-            </div>
-        </div>
+    <!-- Checker -->
+    <div class="bg-white p-4 rounded shadow mb-4">
+      <h2 class="font-semibold mb-2">BIN Checker (paste up to 10 lines)</h2>
+      <textarea id="check-input" class="w-full p-2 border rounded mb-2" rows="6" placeholder="5598880089\n5598881122"></textarea>
+      <div class="flex gap-2">
+        <button id="check-btn" class="px-4 py-2 bg-green-600 text-white rounded">Check</button>
+        <button id="copy-result" class="px-4 py-2 bg-gray-200 rounded">Copy Result</button>
+      </div>
+      <div id="check-result" class="mt-3 space-y-2 text-sm"></div>
     </div>
 
-    <!-- Main App Container -->
-    <div id="app-container" class="min-h-screen flex-col main-page">
-        <header class="flex items-center justify-between p-4 sticky top-0 bg-opacity-80 backdrop-blur-md z-10 dark-bg">
-            <h1 class="text-xl font-bold">CashReward</h1>
-            <div class="flex items-center space-x-4">
-                <div id="notification-bell" class="relative cursor-pointer">
-                    <i data-lucide="bell" class="w-6 h-6"></i>
-                    <div id="notification-dot" class="notification-dot"></div>
-                </div>
-                <i data-lucide="user" class="w-6 h-6 cursor-pointer" onclick="navigateTo('profile-page')"></i>
-            </div>
-        </header>
-
-        <main class="flex-grow">
-            <!-- Home Page -->
-            <div id="home-page" class="p-4 space-y-6 sub-page">
-                <div class="card-bg p-4 rounded-lg flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-400 text-sm">Your Balance</p>
-                        <p class="text-3xl font-bold"><span id="coin-balance">0</span> Coins</p>
-                    </div>
-                    <button id="home-withdraw-btn" class="bg-white text-black font-semibold px-6 py-2 rounded-lg">Withdraw</button>
-                </div>
-                <section>
-                    <div class="flex justify-between items-center">
-                        <div>
-                            <h2 class="text-lg font-semibold">Daily Tasks</h2>
-                            <p class="text-sm text-gray-400 mb-4">Complete tasks to get rewards.</p>
-                        </div>
-                        <p class="text-sm text-gray-400">Ads Left: <span id="ads-left-count">...</span></p>
-                    </div>
-                    <div class="space-y-3">
-                        <div class="bg-orange-500 p-3 rounded-lg flex items-center justify-between text-black">
-                            <div class="flex items-center space-x-3"><span class="text-3xl">ðŸ¤©</span><div><h3 class="font-bold">Watch Short Ad</h3><p class="text-xs font-medium">Rewarded Interstitial</p></div></div>
-                            <button class="bg-white text-orange-500 font-bold px-6 py-2 rounded-lg text-sm btn" onclick="claimReward('interstitial')">Claim</button>
-                        </div>
-                        <div class="card-bg p-3 rounded-lg flex items-center justify-between">
-                            <div class="flex items-center space-x-3"><span class="text-3xl">ðŸ˜Ž</span><div><h3 class="font-semibold">Click for Reward</h3><p class="text-xs text-gray-400">Rewarded Popup</p></div></div>
-                            <button class="bg-white text-black font-bold px-6 py-2 rounded-lg text-sm btn" onclick="claimReward('popup')">Claim</button>
-                        </div>
-                         <div class="card-bg p-3 rounded-lg flex items-center justify-between">
-                            <div class="flex items-center space-x-3"><span class="text-3xl">ðŸ‘€</span><div><h3 class="font-semibold">Watch a Video</h3><p class="text-xs text-gray-400">In-App Interstitial</p></div></div>
-                            <button class="bg-gray-700 text-white font-bold px-6 py-2 rounded-lg text-sm btn" onclick="claimReward('inApp')">Start</button>
-                        </div>
-                        <div class="card-bg p-3 rounded-lg flex items-center justify-between">
-                            <div class="flex items-center space-x-3"><span class="text-3xl">ðŸŽ®</span><div><h3 class="font-semibold">Play Mini App</h3><p class="text-xs text-gray-400">Get a big reward!</p></div></div>
-                            <button class="bg-blue-500 text-white font-bold px-6 py-2 rounded-lg text-sm btn" onclick="claimReward('miniApp')">Play</button>
-                        </div>
-                    </div>
-                </section>
-            </div>
-
-            <!-- Wallet Page -->
-            <div id="wallet-page" class="p-4 space-y-6 sub-page">
-                <h2 class="text-xl font-bold text-center">My Wallet</h2>
-                <div class="card-bg p-4 rounded-lg">
-                    <h3 class="font-semibold mb-3">Withdraw Earnings</h3>
-                    <p class="text-sm text-gray-400 mb-1">Current Balance: <span class="font-bold text-accent"><span id="wallet-coin-balance">0</span> Coins</span></p>
-                    <p class="text-sm text-gray-400 mb-2">Minimum Withdrawal: <span id="min-withdrawal-info">...</span> Coins</p>
-                    <p class="text-sm text-gray-400 mb-4 font-semibold" id="coin-value-info">...</p>
-                    <input id="withdraw-amount" type="number" placeholder="Enter coin amount" class="w-full p-3 rounded-lg input-field mb-3">
-                    <select id="withdraw-method" class="w-full p-3 rounded-lg input-field mb-3"></select>
-                    <div id="payment-details-container"></div>
-                    <button id="withdraw-btn" class="w-full p-3 rounded-lg btn-accent mt-3">Request Withdrawal</button>
-                </div>
-                <div>
-                    <h3 class="text-lg font-semibold mb-3">Withdrawal History</h3>
-                    <div id="withdrawal-history-list" class="space-y-3"></div>
-                </div>
-            </div>
-
-            <!-- Refer Page -->
-            <div id="refer-page" class="p-4 space-y-6 sub-page">
-                 <h2 class="text-xl font-bold text-center">Refer & Earn</h2>
-                 <div class="card-bg p-6 rounded-lg text-center">
-                     <p class="text-gray-400 mb-2">Your Referral Code</p>
-                     <div class="bg-gray-800 p-3 rounded-lg flex items-center justify-center mb-4">
-                         <span id="referral-code" class="text-2xl font-bold tracking-widest">LOADING...</span>
-                         <button id="copy-code-btn" class="ml-4"><i data-lucide="copy" class="w-6 h-6 text-gray-400"></i></button>
-                     </div>
-                     <p class="text-sm text-gray-300">Share the code with your friends.</p>
-                 </div>
-                 <button id="share-btn" class="w-full p-3 rounded-lg btn-accent">Share Your Code</button>
-                 <div class="card-bg p-4 rounded-lg mt-6">
-                    <h3 class="font-semibold mb-3 text-center">Have a Referral Code?</h3>
-                    <input id="enter-referral-code" type="text" placeholder="Enter code here" class="w-full p-3 rounded-lg input-field mb-3">
-                    <button id="apply-referral-btn" class="w-full p-3 rounded-lg btn-outline-accent">Apply Code</button>
-                 </div>
-            </div>
-
-            <!-- Profile Page -->
-            <div id="profile-page" class="p-4 space-y-6 sub-page">
-                <h2 class="text-xl font-bold text-center mb-4">Profile</h2>
-                <div class="flex flex-col items-center">
-                    <img src="https://placehold.co/100x100/1e1e1e/ff8c00?text=U" class="rounded-full mb-2">
-                    <h2 id="profile-name" class="text-xl font-bold">User Name</h2>
-                    <p id="profile-email" class="text-gray-400">user@email.com</p>
-                </div>
-                <button id="logout-btn" class="w-full mt-6 p-3 rounded-lg bg-red-600 text-white font-bold">Logout</button>
-            </div>
-            
-            <!-- Notifications Page -->
-            <div id="notifications-page" class="p-4 space-y-4 sub-page">
-                <h2 class="text-xl font-bold text-center">Notifications</h2>
-                <div id="notifications-list" class="space-y-3"></div>
-            </div>
-        </main>
-
-        <nav class="bottom-nav sticky bottom-0 grid grid-cols-4 items-center text-center py-2 card-bg">
-            <a href="#" class="nav-link" data-page="home-page"><i data-lucide="home" class="mx-auto w-6 h-6"></i><span class="text-xs">Home</span></a>
-            <a href="#" class="nav-link" data-page="wallet-page"><i data-lucide="wallet" class="mx-auto w-6 h-6"></i><span class="text-xs">Wallet</span></a>
-            <a href="#" class="nav-link" data-page="refer-page"><i data-lucide="users" class="mx-auto w-6 h-6"></i><span class="text-xs">Refer & Earn</span></a>
-            <a href="#" class="nav-link" data-page="profile-page"><i data-lucide="user" class="mx-auto w-6 h-6"></i><span class="text-xs">Profile</span></a>
-        </nav>
-    </div>
-    
-    <div id="custom-alert" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div class="bg-gray-800 rounded-lg p-6 w-full max-w-sm text-center">
-            <p id="alert-message" class="mb-4"></p>
-            <button id="alert-ok-btn" class="btn-accent px-6 py-2 rounded-lg">OK</button>
-        </div>
+    <!-- Coins / Earn -->
+    <div class="bg-white p-4 rounded shadow mb-4 flex items-center justify-between">
+      <div>
+        <div class="text-sm text-gray-500">Your Coins</div>
+        <div id="coin-count" class="text-2xl font-bold">0</div>
+      </div>
+      <div>
+        <button id="earn-btn" class="px-4 py-2 bg-yellow-500 rounded">Earn Coins (Watch Ad)</button>
+      </div>
     </div>
 
-    <script type="module">
-        const firebaseConfig = {
-  apiKey: "AIzaSyDnAOm7qFRHpEzDEnG0oITF9GFO2DRpTDE",
-  authDomain: "bin-gen-3de39.firebaseapp.com",
-  databaseURL: "https://bin-gen-3de39-default-rtdb.firebaseio.com",
-  projectId: "bin-gen-3de39",
-  storageBucket: "bin-gen-3de39.firebasestorage.app",
-  messagingSenderId: "892904057114",
-  appId: "1:892904057114:web:76e28b35f183b7417b24a3",
-  measurementId: "G-PGLCZ35JK1"
-};
-        
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, addDoc, serverTimestamp, query, where, getDocs, orderBy, limit } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    <div class="text-xs text-gray-500">This is a prototype. Admin panel uses same Firestore collections.</div>
+  </div>
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+  <!-- Firebase SDKs -->
+  <script type="module">
+    // ---------- CONFIGURE THESE ----------
+    const FIREBASE_CONFIG = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT.firebaseapp.com",
+      projectId: "YOUR_PROJECT",
+      // ...
+    };
 
-        let currentUser = null;
-        let userData = null;
-        let appConfig = {};
+    // If you have a BIN API endpoint put it here (e.g. https://your-bin-api.example/bin/<bin>)
+    // If left null the code will try public binlist.net then fallback to dummy-check.
+    const BIN_API_ENDPOINT = null; // e.g. "https://yourbinapi.com/lookup?bin="
 
-        const loader = document.getElementById('loader');
-        const coinBalanceEl = document.getElementById('coin-balance');
-        const walletCoinBalanceEl = document.getElementById('wallet-coin-balance');
-        const profileNameEl = document.getElementById('profile-name');
-        const profileEmailEl = document.getElementById('profile-email');
-        const referralCodeEl = document.getElementById('referral-code');
-        const minWithdrawalInfoEl = document.getElementById('min-withdrawal-info');
-        const coinValueInfoEl = document.getElementById('coin-value-info');
-        const withdrawMethodSelect = document.getElementById('withdraw-method');
-        const notificationDot = document.getElementById('notification-dot');
-        const adsLeftCountEl = document.getElementById('ads-left-count');
-        const paymentDetailsContainer = document.getElementById('payment-details-container');
+    // Admin UID(s) for frontend checks (not secure alone)
+    const ADMIN_UIDS = ["123456789"];
 
-        window.onload = () => {
-            lucide.createIcons();
-            setupEventListeners();
-            showMainPage('auth-section');
-            loader.style.display = 'none';
-            onAuthStateChanged(auth, handleAuthStateChange);
-        };
+    // ---------- END CONFIG ----------
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp, onSnapshot } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-        async function handleAuthStateChange(user) {
-            if (user) {
-                loader.style.display = 'flex';
-                currentUser = user;
-                await fetchUserData();
-                if (userData.isBlocked) {
-                    showAlert("Your account has been blocked.");
-                    await signOut(auth);
-                    loader.style.display = 'none';
-                    return;
-                }
-                await fetchAppConfig();
-                await checkNewNotifications();
-                updateUI();
-                showMainPage('app-container');
-                navigateTo('home-page');
-                loader.style.display = 'none';
-            } else {
-                currentUser = null;
-                userData = null;
-                showMainPage('auth-section');
-            }
+    // Telegram WebApp check (will exist when opened inside Telegram)
+    const tg = window.Telegram ? window.Telegram.WebApp : null;
+
+    // Init Firebase
+    const app = initializeApp(FIREBASE_CONFIG);
+    const db = getFirestore(app);
+
+    // Helpers
+    const q = id => document.getElementById(id);
+    const status = msg => q('status').textContent = msg || '';
+
+    // Deterministic pseudo-random based on string (for dummy-check)
+    function deterministicHash(s){ let h=2166136261>>>0; for(let i=0;i<s.length;i++){h = Math.imul(h ^ s.charCodeAt(i), 16777619);} return (h >>> 0); }
+
+    // ---------- USER BOOTSTRAP ----------
+    let USER = { id: null, name: null, username: null, coins: 0, banned: false };
+
+    async function ensureUser(tgUser) {
+      if(!tgUser) return;
+      USER.id = String(tgUser.id);
+      USER.name = tgUser.first_name || '';
+      USER.username = tgUser.username || '';
+      const ref = doc(db, 'users', USER.id);
+      const snap = await getDoc(ref);
+      if(!snap.exists()){
+        await setDoc(ref, {
+          name: USER.name,
+          username: USER.username,
+          coins: 100,
+          generated: 0,
+          checks: 0,
+          banned: false,
+          joinedAt: serverTimestamp()
+        });
+        USER.coins = 100;
+      } else {
+        const data = snap.data();
+        USER.coins = data.coins || 0;
+        USER.banned = data.banned || false;
+      }
+      // listen for changes
+      onSnapshot(ref, s=> {
+        if(s.exists()){
+          const d=s.data(); USER.coins = d.coins||0; USER.banned = d.banned||false;
+          q('coin-count').textContent = USER.coins;
+          if(USER.banned) { alert('Your account is banned.'); if(tg) tg.close(); }
         }
+      });
+      q('coin-count').textContent = USER.coins;
+    }
 
-        async function fetchUserData() {
-            if (!currentUser) return;
-            const userRef = doc(db, "users", currentUser.uid);
-            try {
-                const userSnap = await getDoc(userRef);
-                if (userSnap.exists()) {
-                    userData = userSnap.data();
-                } else {
-                    const ownReferralCode = Math.random().toString(36).substring(2, 8).toUpperCase();
-                    const defaultUserData = {
-                        uid: currentUser.uid, name: currentUser.displayName || currentUser.email.split('@')[0], email: currentUser.email,
-                        balance: 50, referralCode: ownReferralCode, referredBy: null,
-                        lastNotificationCheck: new Date(),
-                        createdAt: serverTimestamp(),
-                        dailyAdCount: 0, lastAdWatchDate: new Date().toISOString().split('T')[0], isBlocked: false
-                    };
-                    await setDoc(userRef, defaultUserData);
-                    userData = defaultUserData;
-                }
-            } catch (error) {
-                console.error("Error fetching user data:", error);
-                showAlert("Error loading user data.");
-            }
+    // If inside Telegram, get initDataUnsafe user. If not (testing), create demo user.
+    (async ()=>{
+      status('Initializing...');
+      try {
+        let tgUser = null;
+        if(window.Telegram && Telegram.WebApp && Telegram.WebApp.initDataUnsafe){
+          tgUser = Telegram.WebApp.initDataUnsafe.user;
+        } else {
+          // not inside Telegram — demo user
+          tgUser = { id: 'demo_'+(Math.floor(Math.random()*1000000)), first_name: 'Demo', username: 'demo' };
+          status('Running outside TG (demo mode)');
         }
+        await ensureUser(tgUser);
+        status('Ready');
+      } catch(e){ console.error(e); status('Init error: '+e.message); }
+    })();
 
-        async function fetchAppConfig() {
-            const configRef = doc(db, "config", "main");
-            try {
-                const configSnap = await getDoc(configRef);
-                appConfig = configSnap.exists() ? configSnap.data() : { minWithdrawal: 5000, paymentMethods: ["UPI", "bKash"], dailyAdLimit: 10, coinValueCoins: 1000, coinValueInr: 10 };
-            } catch (error) {
-                console.error("Error fetching app config:", error);
-            }
+    // ---------- BIN GENERATOR ----------
+    // Behavior: input "gen 5598880089"
+    // We'll parse prefix and produce formatted output similar to your example.
+    function randomDigits(n){ let s=''; for(let i=0;i<n;i++) s += Math.floor(Math.random()*10); return s; }
+
+    function generateFormatted(prefix, count=12){
+      // prefix may be like 5598880089 — we will use prefix as start of each 16-19 digit card number and add random pieces and expiry pairs
+      const lines=[];
+      for(let i=0;i<count;i++){
+        const card = (prefix + randomDigits(16 - prefix.length)).slice(0,16);
+        // produce expiry mm|YYYY
+        const mm = String(Math.floor(Math.random()*12)+1).padStart(2,'0');
+        const yy = String(2027 + Math.floor(Math.random()*8)); // 2027-2034
+        lines.push(`${card}|${mm}|${yy}`);
+      }
+      // build final block similar to user's sample
+      const N = prefix.slice(0,6);
+      const amount = Math.floor(Math.random()*999)+10;
+      const joined = lines.join('|');
+      const info = `Info: MASTERCARD - DEBIT\nBank: BANGKOK BANK PUBLIC COMPANY LIMITED\nCountry: Thailand 🇹🇭`;
+      return `𝗡 ⇾ ${N} 𝗔𝗺𝗼𝘂𝗻𝘁 ⇾ ${amount}${joined}𝗜𝗻𝗳𝗼: ${info}`;
+    }
+
+    q('gen-btn').addEventListener('click', async ()=>{
+      const v = q('gen-input').value.trim();
+      if(!v.startsWith('gen ')) return alert('Use format: gen 5598880089');
+      const prefix = v.split(' ')[1].trim();
+      if(prefix.length < 4) return alert('prefix too short');
+      // coins check: every 10 generate => -10 coins (we'll assume each click generates 12 items)
+      const genCount = 12;
+      const costPerClick = Math.floor(genCount/10)*10; // example: 12 -> cost 10
+      if(USER.coins < costPerClick) return alert('Not enough coins. Earn more.');
+      // produce
+      const output = generateFormatted(prefix, genCount);
+      q('gen-output').textContent = output;
+      // update user counters in Firestore (increment generated and deduct coins)
+      try {
+        const uref = doc(db,'users',USER.id);
+        await updateDoc(uref, {
+          coins: USER.coins - costPerClick,
+          generated: ( (typeof USER.generated === 'number'? USER.generated:0) + genCount )
+        });
+      } catch(e){ console.error('update user error', e); }
+    });
+
+    q('copy-gen').addEventListener('click', ()=> {
+      navigator.clipboard.writeText(q('gen-output').textContent || '').then(()=> alert('Copied'));
+    });
+
+    // ---------- BIN CHECKER ----------
+    async function checkSingleBin(bin){
+      bin = bin.trim();
+      if(!bin) return { bin, ok:false, info:null, source:'empty' };
+      // Try custom API first
+      if(BIN_API_ENDPOINT){
+        try{
+          const res = await fetch(BIN_API_ENDPOINT + encodeURIComponent(bin));
+          if(res.ok){ const j=await res.json(); return { bin, ok: !!j.scheme || !!j.type, info:j, source:'api' }; }
+        }catch(e){ console.warn('api error', e); }
+      }
+      // try public binlist.net (rate limited)
+      try {
+        const r = await fetch('https://lookup.binlist.net/' + bin);
+        if(r.ok){
+          const j = await r.json();
+          return { bin, ok: true, info: j, source:'binlist' };
         }
-        
-        function updateUI() {
-            if (!userData) return;
-            const balance = userData.balance || 0;
-            coinBalanceEl.textContent = balance;
-            walletCoinBalanceEl.textContent = balance;
-            profileNameEl.textContent = userData.name || 'No Name';
-            profileEmailEl.textContent = userData.email || 'No Email';
-            referralCodeEl.textContent = userData.referralCode || '...';
-            minWithdrawalInfoEl.textContent = `${appConfig.minWithdrawal || 5000} Coins`;
-            coinValueInfoEl.textContent = `${appConfig.coinValueCoins || 1000} Coins = à§³${appConfig.coinValueInr || 10}`;
-            withdrawMethodSelect.innerHTML = '';
-            (appConfig.paymentMethods || []).forEach(method => {
-                const option = document.createElement('option');
-                option.value = method;
-                option.textContent = method;
-                withdrawMethodSelect.appendChild(option);
-            });
-            updateDynamicPaymentFields();
-            updateAdsLeftCount();
+      } catch(e){ /* ignore */ }
+      // dummy deterministic fallback
+      const hash = deterministicHash(bin);
+      const alive = (hash % 3) === 0; // deterministic but pseudo-random
+      return { bin, ok: alive, info: null, source:'dummy' };
+    }
+
+    q('check-btn').addEventListener('click', async ()=>{
+      const raw = q('check-input').value.trim();
+      if(!raw) return alert('Paste at least one BIN');
+      const bins = raw.split(/\r?\n/).map(s=>s.trim()).filter(Boolean).slice(0,10);
+      q('check-result').innerHTML = '<div class="text-sm text-gray-500">Checking...</div>';
+      // increment user's checks
+      try { await updateDoc(doc(db,'users',USER.id), { checks: (USER.checks||0)+bins.length }); } catch(e){/*ignore*/}
+
+      const parts = [];
+      for(const b of bins){
+        const res = await checkSingleBin(b);
+        const el = document.createElement('div');
+        el.className = 'p-2 rounded';
+        el.style.background = res.ok ? '#ecfccb' : '#fee2e2';
+        el.innerHTML = `<strong>${res.bin}</strong> — ${res.ok ? 'LIVE' : 'DEAD'} <span class="text-xs text-gray-600">(${res.source})</span>`;
+        q('check-result').appendChild(el);
+      }
+    });
+
+    q('copy-result').addEventListener('click', ()=> {
+      const t = Array.from(q('check-result').querySelectorAll('div')).map(d=> d.textContent.trim()).join('\n');
+      navigator.clipboard.writeText(t).then(()=> alert('Copied'));
+    });
+
+    // ---------- Monetag Earn (Rewarded) ----------
+    q('earn-btn').addEventListener('click', async ()=>{
+      // call SDK rewarded (your example: show_10218802('pop') or .then)
+      try {
+        if(typeof show_10218802 === 'function'){
+          // use popup rewarded variant
+          show_10218802('pop').then(async ()=>{
+            // rewarded: add coins
+            const add = 10;
+            try { await updateDoc(doc(db,'users',USER.id), { coins: (USER.coins||0) + add }); alert('You got +'+add+' coins!'); } catch(e){ console.error(e); }
+          }).catch(e => { console.warn('ad error', e); alert('Ad not available'); });
+        } else {
+          alert('Ad SDK not loaded');
         }
+      } catch(e){ console.error(e); alert('Ad error: '+e.message); }
+    });
 
-        function updateAdsLeftCount() {
-            const today = new Date().toISOString().split('T')[0];
-            if (userData.lastAdWatchDate !== today) {
-                userData.dailyAdCount = 0;
-            }
-            const adsLeft = Math.max(0, (appConfig.dailyAdLimit || 10) - userData.dailyAdCount);
-            adsLeftCountEl.textContent = adsLeft;
-        }
-
-        function updateDynamicPaymentFields() {
-            const selectedMethod = withdrawMethodSelect.value.toLowerCase();
-            let placeholder = "Enter Details";
-            if (selectedMethod.includes('upi')) placeholder = "Enter your UPI ID";
-            if (selectedMethod.includes('bkash')) placeholder = "Enter your bKash Number";
-            paymentDetailsContainer.innerHTML = `<input id="payment-detail-input" type="text" placeholder="${placeholder}" class="w-full p-3 rounded-lg input-field">`;
-        }
-
-        function showMainPage(pageId) {
-            document.querySelectorAll('.main-page').forEach(p => p.classList.remove('active'));
-            document.getElementById(pageId).classList.add('active');
-        }
-
-        function navigateTo(pageId) {
-            document.querySelectorAll('.sub-page').forEach(p => p.classList.remove('active'));
-            document.getElementById(pageId).classList.add('active');
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.classList.remove('active', 'text-accent');
-                if (link.dataset.page === pageId) link.classList.add('active', 'text-accent');
-            });
-        }
-        window.navigateTo = navigateTo;
-
-        function setupEventListeners() {
-            document.getElementById('show-signup').addEventListener('click', (e) => { e.preventDefault(); document.getElementById('login-view').classList.add('hidden'); document.getElementById('signup-view').classList.remove('hidden'); });
-            document.getElementById('show-login').addEventListener('click', (e) => { e.preventDefault(); document.getElementById('signup-view').classList.add('hidden'); document.getElementById('login-view').classList.remove('hidden'); });
-            document.getElementById('signup-btn').addEventListener('click', handleSignup);
-            document.getElementById('login-btn').addEventListener('click', handleLogin);
-            document.getElementById('logout-btn').addEventListener('click', handleLogout);
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const pageId = link.dataset.page;
-                    if (pageId === 'wallet-page') loadWithdrawalHistory();
-                    navigateTo(pageId);
-                });
-            });
-            document.getElementById('notification-bell').addEventListener('click', () => { navigateTo('notifications-page'); loadNotifications(); });
-            document.getElementById('copy-code-btn').addEventListener('click', copyReferralCode);
-            document.getElementById('share-btn').addEventListener('click', shareReferralCode);
-            document.getElementById('withdraw-btn').addEventListener('click', handleWithdrawal);
-            document.getElementById('home-withdraw-btn').addEventListener('click', () => navigateTo('wallet-page'));
-            document.getElementById('apply-referral-btn').addEventListener('click', handleApplyReferralCode);
-            withdrawMethodSelect.addEventListener('change', updateDynamicPaymentFields);
-        }
-
-        async function handleSignup() {
-            const name = document.getElementById('signup-name').value;
-            const email = document.getElementById('signup-email').value;
-            const password = document.getElementById('signup-password').value;
-            if (!name || !email || !password) return showAlert("Please fill all fields.");
-            loader.style.display = 'flex';
-            try {
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                const userRef = doc(db, "users", userCredential.user.uid);
-                await updateDoc(userRef, { name: name });
-            } catch (error) {
-                showAlert(error.message);
-            } finally {
-                loader.style.display = 'none';
-            }
-        }
-
-        async function handleLogin() {
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-            if (!email || !password) return showAlert("Please enter email and password.");
-            loader.style.display = 'flex';
-            try {
-                await signInWithEmailAndPassword(auth, email, password);
-            } catch (error) {
-                showAlert(error.message);
-            } finally {
-                loader.style.display = 'none';
-            }
-        }
-
-        async function handleLogout() { await signOut(auth); }
-        
-        async function checkNewNotifications() {
-            const lastCheck = userData.lastNotificationCheck;
-            if (!lastCheck || typeof lastCheck.seconds === 'undefined') {
-                console.log("lastNotificationCheck is not a valid timestamp yet. Skipping check.");
-                return;
-            }
-            const q = query(collection(db, "notifications"), where("createdAt", ">", lastCheck), limit(1));
-            const querySnapshot = await getDocs(q);
-            notificationDot.style.display = querySnapshot.empty ? 'none' : 'block';
-        }
-
-        async function loadNotifications() {
-            const listEl = document.getElementById('notifications-list');
-            listEl.innerHTML = '<p class="text-gray-400">Loading...</p>';
-            notificationDot.style.display = 'none';
-            const q = query(collection(db, "notifications"), orderBy("createdAt", "desc"));
-            try {
-                const querySnapshot = await getDocs(q);
-                if (querySnapshot.empty) {
-                    listEl.innerHTML = '<p class="text-gray-400 text-center">No notifications available.</p>';
-                    return;
-                }
-                listEl.innerHTML = '';
-                querySnapshot.forEach(doc => {
-                    const msg = doc.data();
-                    const date = msg.createdAt ? msg.createdAt.toDate().toLocaleDateString() : 'N/A';
-                    listEl.innerHTML += `<div class="card-bg p-4 rounded-lg"><div class="flex justify-between items-center mb-1"><h3 class="font-bold">${msg.title}</h3><p class="text-xs text-gray-400">${date}</p></div><p class="text-sm text-gray-300">${msg.message}</p></div>`;
-                });
-                await updateDoc(doc(db, "users", currentUser.uid), { lastNotificationCheck: serverTimestamp() });
-            } catch (error) {
-                console.error("Error loading notifications:", error);
-                listEl.innerHTML = '<p class="text-red-400">Error loading notifications.</p>';
-            }
-        }
-
-        async function loadWithdrawalHistory() {
-            const historyList = document.getElementById('withdrawal-history-list');
-            historyList.innerHTML = '<p class="text-gray-400">Loading history...</p>';
-            const q = query(collection(db, "withdrawals"), where("userId", "==", currentUser.uid), orderBy("requestedAt", "desc"));
-            try {
-                const querySnapshot = await getDocs(q);
-                if (querySnapshot.empty) {
-                    historyList.innerHTML = '<p class="text-gray-400 text-center">You haven\'t made any withdrawals yet.</p>';
-                    return;
-                }
-                historyList.innerHTML = '';
-                querySnapshot.forEach(doc => {
-                    const request = doc.data();
-                    const status = request.status;
-                    let statusColor = 'text-yellow-400';
-                    if (status === 'approved') statusColor = 'text-green-400';
-                    else if (status === 'rejected') statusColor = 'text-red-400';
-                    const date = request.requestedAt ? request.requestedAt.toDate().toLocaleDateString() : 'N/A';
-                    historyList.innerHTML += `<div class="card-bg p-3 rounded-lg flex items-center justify-between"><div><p class="font-semibold">${request.amount} Coins - ${request.method}</p><p class="text-xs text-gray-400">${date}</p></div><p class="font-bold ${statusColor} capitalize">${status}</p></div>`;
-                });
-            } catch (error) {
-                console.error("Error fetching withdrawal history: ", error);
-                historyList.innerHTML = '<p class="text-red-400 text-center">Error loading history.</p>';
-            }
-        }
-        
-        async function handleApplyReferralCode() {
-            if (userData.referredBy) return showAlert("You have already used a referral code.");
-            const codeInput = document.getElementById('enter-referral-code');
-            const code = codeInput.value.trim().toUpperCase();
-            if (!code) return showAlert("Please enter a code.");
-            if (code === userData.referralCode) return showAlert("You cannot use your own code.");
-            loader.style.display = 'flex';
-            await applyReferralBonus(code, true);
-            codeInput.value = '';
-            loader.style.display = 'none';
-        }
-
-        async function applyReferralBonus(referrerCode, isManualApply = false) {
-            const usersRef = collection(db, "users");
-            const q = query(usersRef, where("referralCode", "==", referrerCode));
-            try {
-                const querySnapshot = await getDocs(q);
-                if (!querySnapshot.empty) {
-                    const referrerDoc = querySnapshot.docs[0];
-                    const referrerRef = doc(db, "users", referrerDoc.id);
-                    const referrerData = referrerDoc.data();
-                    await updateDoc(referrerRef, { balance: (referrerData.balance || 0) + 100 });
-                    const newUserRef = doc(db, "users", currentUser.uid);
-                    await updateDoc(newUserRef, { balance: (userData.balance || 0) + 100, referredBy: referrerCode });
-                    userData.balance += 100; userData.referredBy = referrerCode;
-                    updateUI();
-                    if(isManualApply) showAlert("Code applied successfully! You have received 100 coins.");
-                } else {
-                    if(isManualApply) showAlert("Invalid referral code.");
-                }
-            } catch(error) {
-                console.error("Error applying referral bonus: ", error);
-                if(isManualApply) showAlert("Error applying code.");
-            }
-        }
-
-        async function updateBalance(amount) {
-            if (!currentUser) return;
-            const newBalance = (userData.balance || 0) + amount;
-            const userRef = doc(db, "users", currentUser.uid);
-            await updateDoc(userRef, { balance: newBalance });
-            userData.balance = newBalance;
-            updateUI();
-        }
-
-        async function handleWithdrawal() {
-            const amount = parseInt(document.getElementById('withdraw-amount').value);
-            const method = document.getElementById('withdraw-method').value;
-            const paymentDetailInput = document.getElementById('payment-detail-input');
-            const paymentDetail = paymentDetailInput ? paymentDetailInput.value.trim() : '';
-            const minWithdrawal = appConfig.minWithdrawal || 5000;
-
-            if (!amount || amount <= 0) return showAlert("Please enter a valid amount.");
-            if (amount < minWithdrawal) return showAlert(`Minimum withdrawal is ${minWithdrawal} coins.`);
-            if (amount > userData.balance) return showAlert("Insufficient balance.");
-            if (!paymentDetail) return showAlert("Please enter payment details (e.g., UPI ID or bKash Number).");
-
-            loader.style.display = 'flex';
-            try {
-                await updateBalance(-amount);
-                await addDoc(collection(db, "withdrawals"), {
-                    userId: currentUser.uid, userName: userData.name, userEmail: userData.email,
-                    amount: amount, method: method, paymentDetail: paymentDetail, status: "pending", requestedAt: serverTimestamp()
-                });
-                showAlert("Withdrawal request submitted successfully!");
-                document.getElementById('withdraw-amount').value = '';
-                paymentDetailInput.value = '';
-                loadWithdrawalHistory();
-            } catch (error) {
-                showAlert("Error submitting request: " + error.message);
-                await updateBalance(amount); // Refund if error
-            } finally {
-                loader.style.display = 'none';
-            }
-        }
-
-        function copyReferralCode() {
-            const textToCopy = referralCodeEl.textContent;
-            navigator.clipboard.writeText(textToCopy).then(() => {
-                showAlert("Referral code copied!");
-            }).catch(err => {
-                showAlert("Failed to copy code.");
-            });
-        }
-        
-        function shareReferralCode() {
-            const text = `Join CashReward and earn money! Use my referral code to get a bonus: ${userData.referralCode}`;
-            if (navigator.share) {
-                navigator.share({ title: 'Join CashReward!', text: text, url: window.location.href })
-                    .catch((error) => console.error("Share failed:", error));
-            } else {
-                copyReferralCode();
-                showAlert("Share feature is not available. Referral code has been copied instead!");
-            }
-        }
-
-        window.claimReward = async function(taskType) {
-            const today = new Date().toISOString().split('T')[0];
-            const userRef = doc(db, "users", currentUser.uid);
-
-            if (userData.lastAdWatchDate !== today) {
-                await updateDoc(userRef, { dailyAdCount: 0, lastAdWatchDate: today });
-                userData.dailyAdCount = 0;
-                userData.lastAdWatchDate = today;
-            }
-
-            if (userData.dailyAdCount >= (appConfig.dailyAdLimit || 10)) {
-                return showAlert("You have reached your daily ad watch limit.");
-            }
-            
-            if (typeof window.show_10218802 !== 'function') {
-                return showAlert("Ad service is currently unavailable. Please try again later.");
-            }
-            
-            let adPromise;
-            loader.style.display = 'flex';
-            try {
-                 switch(taskType) {
-                    case 'interstitial': adPromise = window.show_10218802(); break;
-                    case 'popup': adPromise = window.show_10218802('pop'); break;
-                    case 'inApp': adPromise = window.show_10218802({ type: 'inApp', inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false } }); break;
-                    case 'miniApp': adPromise = window.show_10218802(); break;
-                    default: return;
-                }
-                
-                await adPromise;
-
-                const newCount = (userData.dailyAdCount || 0) + 1;
-                await updateDoc(userRef, { dailyAdCount: newCount });
-                userData.dailyAdCount = newCount;
-                
-                let rewardAmount = 0;
-                if (taskType === 'miniApp') rewardAmount = 100;
-                else if (taskType !== 'inApp') rewardAmount = 50;
-
-                if (rewardAmount > 0) {
-                    await updateBalance(rewardAmount);
-                    showAlert(`Congratulations! You have won ${rewardAmount} coins.`);
-                }
-                updateAdsLeftCount();
-
-            } catch(e) {
-                console.error("Ad error:", e);
-                showAlert('Could not show ad. Please try again later.');
-            } finally {
-                loader.style.display = 'none';
-            }
-        }
-
-        function showAlert(message) {
-            document.getElementById('alert-message').textContent = message;
-            document.getElementById('custom-alert').classList.remove('hidden');
-            document.getElementById('alert-ok-btn').onclick = () => {
-                document.getElementById('custom-alert').classList.add('hidden');
-            };
-        }
-        window.showAlert = showAlert;
-
-    </script>
+  </script>
 </body>
-</html>
+    </html>
