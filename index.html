@@ -1,261 +1,173 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>TG Mini - BIN Tool</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>body{font-family:Inter,system-ui,Arial;background:#f8fafc}</style>
-  <!-- Monetag SDK (you provided) -->
-  <script src="//libtl.com/sdk.js" data-zone="10218802" data-sdk="show_10218802"></script>
+<title>BIN Gen + Admin</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Monetag SDK -->
+<script src='//libtl.com/sdk.js' data-zone='10218802' data-sdk='show_10218802'></script>
+
+<style>
+body{
+  font-family: Arial, sans-serif; padding:15px;
+  background:#111; color:#fff;
+}
+.box{
+  background:#222; padding:15px; border-radius:10px; margin-bottom:15px;
+}
+button{
+  padding:10px 15px; border:none; border-radius:8px;
+  background:#0af; color:#000; font-weight:bold;
+}
+input{
+  padding:10px; width:100%; border-radius:6px;
+  border:none; margin-bottom:10px;
+}
+.admin{
+  background:#440000;
+}
+</style>
 </head>
-<body class="p-4">
-  <div class="max-w-3xl mx-auto">
-    <h1 class="text-2xl font-bold mb-4">TG Mini — BIN Generator & Checker</h1>
+<body>
 
-    <div id="status" class="mb-4 text-sm text-gray-600"></div>
+<h2>BIN Generator + Wallet</h2>
 
-    <!-- Generator -->
-    <div class="bg-white p-4 rounded shadow mb-4">
-      <h2 class="font-semibold mb-2">BIN Generator</h2>
-      <p class="text-xs text-gray-500 mb-2">Write like: <code>gen 5598880089</code></p>
-      <input id="gen-input" class="w-full p-2 border rounded mb-2" placeholder="gen 5598880089" />
-      <div class="flex gap-2">
-        <button id="gen-btn" class="px-4 py-2 bg-indigo-600 text-white rounded">Generate</button>
-        <button id="copy-gen" class="px-4 py-2 bg-gray-200 rounded">Copy Output</button>
+<div id="userInfo" class="box">Checking user...</div>
+
+<div class="box">
+  <h3>Your Coins: <span id="coins">0</span></h3>
+  <button onclick="showReward()">Watch Ad +20 Coins</button>
+</div>
+
+<div class="box">
+  <h3>Generate BIN</h3>
+  <button onclick="generateBIN()">Generate</button>
+  <pre id="binBox"></pre>
+</div>
+
+<div id="adminPanel" class="box admin" style="display:none;">
+  <h3>Admin Panel</h3>
+  <button onclick="loadUsers()">Load Users</button>
+  <div id="userList"></div>
+</div>
+
+<script type="module">
+
+// ------------------- Firebase --------------------
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
+import { getDatabase, ref, set, update, get, child } 
+from "https://www.gstatic.com/firebasejs/10.11.1/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDnAOm7qFRHpEzDEnG0oITF9GFO2DRpTDE",
+  authDomain: "bin-gen-3de39.firebaseapp.com",
+  databaseURL: "https://bin-gen-3de39-default-rtdb.firebaseio.com",
+  projectId: "bin-gen-3de39",
+  storageBucket: "bin-gen-3de39.firebasestorage.app",
+  messagingSenderId: "892904057114",
+  appId: "1:892904057114:web:76e28b35f183b7417b24a3",
+  measurementId: "G-PGLCZ35JK1"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+// ------------------- TG Mini App --------------------
+let tg = window.Telegram?.WebApp;
+let uid = tg ? tg.initDataUnsafe.user.id : "NO_TG_USER";
+
+// আপনার দেয়া UID admin হিসেবে সেট
+const adminUID = "WrL62ZpiYyXCRLDVMQ8IRmZTga12";
+
+// ------------------- User Create / Load --------------------
+async function loadUser(){
+  const dbRef = ref(db);
+  const snap = await get(child(dbRef, `users/${uid}`));
+
+  if(!snap.exists()){
+    await set(ref(db, `users/${uid}`), {
+      coins:100,
+      created_at: new Date().toISOString().slice(0,10),
+      role: uid===adminUID ? "admin" : "user"
+    });
+  }
+
+  return (await get(child(dbRef, `users/${uid}`))).val();
+}
+
+let userData = await loadUser();
+document.getElementById("coins").innerText = userData.coins;
+document.getElementById("userInfo").innerHTML = 
+  `UID: ${uid}<br>Role: ${userData.role}<br>Coins: ${userData.coins}`;
+
+// Show admin panel
+if(userData.role === "admin"){
+  document.getElementById("adminPanel").style.display="block";
+}
+
+// ------------------- Watch Ad --------------------
+function showReward(){
+  show_10218802().then(async ()=>{
+    let newCoins = userData.coins + 20;
+    update(ref(db, `users/${uid}`), {coins:newCoins});
+    userData.coins = newCoins;
+    document.getElementById("coins").innerText = newCoins;
+    alert("20 Coins Added!");
+  });
+}
+
+// ------------------- BIN Generator --------------------
+function randomNum(n){ return Math.floor(Math.random()*10**n).toString().padStart(n,'0'); }
+
+function generateBIN(){
+  let prefix = "472068"; // fixed
+  let card = prefix + randomNum(10);
+  document.getElementById("binBox").innerText = card;
+}
+
+// ------------------- Admin Panel Functions --------------------
+async function loadUsers(){
+  const snap = await get(ref(db, "users"));
+  if(!snap.exists()) return;
+  let data = snap.val();
+  let html = "";
+
+  Object.keys(data).forEach(uid=>{
+    html += `
+      <div class='box'>
+        <b>UID:</b> ${uid}<br>
+        Coins: ${data[uid].coins}<br>
+        Role: ${data[uid].role}<br>
+        <button onclick="addCoin('${uid}')">+10 Coin</button>
+        <button onclick="removeCoin('${uid}')">-10 Coin</button>
+        <button onclick="banUser('${uid}')">Ban</button>
       </div>
-      <pre id="gen-output" class="mt-3 p-3 bg-gray-50 rounded min-h-[120px] text-sm"></pre>
-    </div>
+    `;
+  });
 
-    <!-- Checker -->
-    <div class="bg-white p-4 rounded shadow mb-4">
-      <h2 class="font-semibold mb-2">BIN Checker (paste up to 10 lines)</h2>
-      <textarea id="check-input" class="w-full p-2 border rounded mb-2" rows="6" placeholder="5598880089\n5598881122"></textarea>
-      <div class="flex gap-2">
-        <button id="check-btn" class="px-4 py-2 bg-green-600 text-white rounded">Check</button>
-        <button id="copy-result" class="px-4 py-2 bg-gray-200 rounded">Copy Result</button>
-      </div>
-      <div id="check-result" class="mt-3 space-y-2 text-sm"></div>
-    </div>
+  document.getElementById("userList").innerHTML = html;
+}
 
-    <!-- Coins / Earn -->
-    <div class="bg-white p-4 rounded shadow mb-4 flex items-center justify-between">
-      <div>
-        <div class="text-sm text-gray-500">Your Coins</div>
-        <div id="coin-count" class="text-2xl font-bold">0</div>
-      </div>
-      <div>
-        <button id="earn-btn" class="px-4 py-2 bg-yellow-500 rounded">Earn Coins (Watch Ad)</button>
-      </div>
-    </div>
+window.addCoin = async function(target){
+  let userSnap = await get(ref(db, `users/${target}`));
+  let c = userSnap.val().coins + 10;
+  update(ref(db, `users/${target}`), {coins:c});
+  loadUsers();
+}
 
-    <div class="text-xs text-gray-500">This is a prototype. Admin panel uses same Firestore collections.</div>
-  </div>
+window.removeCoin = async function(target){
+  let userSnap = await get(ref(db, `users/${target}`));
+  let c = userSnap.val().coins - 10;
+  if(c<0) c=0;
+  update(ref(db, `users/${target}`), {coins:c});
+  loadUsers();
+}
 
-  <!-- Firebase SDKs -->
-  <script type="module">
-    // ---------- CONFIGURE THESE ----------
-    const FIREBASE_CONFIG = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_PROJECT.firebaseapp.com",
-      projectId: "YOUR_PROJECT",
-      // ...
-    };
+window.banUser = async function(target){
+  update(ref(db, `users/${target}`), {role:"banned"});
+  loadUsers();
+}
 
-    // If you have a BIN API endpoint put it here (e.g. https://your-bin-api.example/bin/<bin>)
-    // If left null the code will try public binlist.net then fallback to dummy-check.
-    const BIN_API_ENDPOINT = null; // e.g. "https://yourbinapi.com/lookup?bin="
-
-    // Admin UID(s) for frontend checks (not secure alone)
-    const ADMIN_UIDS = ["123456789"];
-
-    // ---------- END CONFIG ----------
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp, onSnapshot } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-
-    // Telegram WebApp check (will exist when opened inside Telegram)
-    const tg = window.Telegram ? window.Telegram.WebApp : null;
-
-    // Init Firebase
-    const app = initializeApp(FIREBASE_CONFIG);
-    const db = getFirestore(app);
-
-    // Helpers
-    const q = id => document.getElementById(id);
-    const status = msg => q('status').textContent = msg || '';
-
-    // Deterministic pseudo-random based on string (for dummy-check)
-    function deterministicHash(s){ let h=2166136261>>>0; for(let i=0;i<s.length;i++){h = Math.imul(h ^ s.charCodeAt(i), 16777619);} return (h >>> 0); }
-
-    // ---------- USER BOOTSTRAP ----------
-    let USER = { id: null, name: null, username: null, coins: 0, banned: false };
-
-    async function ensureUser(tgUser) {
-      if(!tgUser) return;
-      USER.id = String(tgUser.id);
-      USER.name = tgUser.first_name || '';
-      USER.username = tgUser.username || '';
-      const ref = doc(db, 'users', USER.id);
-      const snap = await getDoc(ref);
-      if(!snap.exists()){
-        await setDoc(ref, {
-          name: USER.name,
-          username: USER.username,
-          coins: 100,
-          generated: 0,
-          checks: 0,
-          banned: false,
-          joinedAt: serverTimestamp()
-        });
-        USER.coins = 100;
-      } else {
-        const data = snap.data();
-        USER.coins = data.coins || 0;
-        USER.banned = data.banned || false;
-      }
-      // listen for changes
-      onSnapshot(ref, s=> {
-        if(s.exists()){
-          const d=s.data(); USER.coins = d.coins||0; USER.banned = d.banned||false;
-          q('coin-count').textContent = USER.coins;
-          if(USER.banned) { alert('Your account is banned.'); if(tg) tg.close(); }
-        }
-      });
-      q('coin-count').textContent = USER.coins;
-    }
-
-    // If inside Telegram, get initDataUnsafe user. If not (testing), create demo user.
-    (async ()=>{
-      status('Initializing...');
-      try {
-        let tgUser = null;
-        if(window.Telegram && Telegram.WebApp && Telegram.WebApp.initDataUnsafe){
-          tgUser = Telegram.WebApp.initDataUnsafe.user;
-        } else {
-          // not inside Telegram — demo user
-          tgUser = { id: 'demo_'+(Math.floor(Math.random()*1000000)), first_name: 'Demo', username: 'demo' };
-          status('Running outside TG (demo mode)');
-        }
-        await ensureUser(tgUser);
-        status('Ready');
-      } catch(e){ console.error(e); status('Init error: '+e.message); }
-    })();
-
-    // ---------- BIN GENERATOR ----------
-    // Behavior: input "gen 5598880089"
-    // We'll parse prefix and produce formatted output similar to your example.
-    function randomDigits(n){ let s=''; for(let i=0;i<n;i++) s += Math.floor(Math.random()*10); return s; }
-
-    function generateFormatted(prefix, count=12){
-      // prefix may be like 5598880089 — we will use prefix as start of each 16-19 digit card number and add random pieces and expiry pairs
-      const lines=[];
-      for(let i=0;i<count;i++){
-        const card = (prefix + randomDigits(16 - prefix.length)).slice(0,16);
-        // produce expiry mm|YYYY
-        const mm = String(Math.floor(Math.random()*12)+1).padStart(2,'0');
-        const yy = String(2027 + Math.floor(Math.random()*8)); // 2027-2034
-        lines.push(`${card}|${mm}|${yy}`);
-      }
-      // build final block similar to user's sample
-      const N = prefix.slice(0,6);
-      const amount = Math.floor(Math.random()*999)+10;
-      const joined = lines.join('|');
-      const info = `Info: MASTERCARD - DEBIT\nBank: BANGKOK BANK PUBLIC COMPANY LIMITED\nCountry: Thailand 🇹🇭`;
-      return `𝗡 ⇾ ${N} 𝗔𝗺𝗼𝘂𝗻𝘁 ⇾ ${amount}${joined}𝗜𝗻𝗳𝗼: ${info}`;
-    }
-
-    q('gen-btn').addEventListener('click', async ()=>{
-      const v = q('gen-input').value.trim();
-      if(!v.startsWith('gen ')) return alert('Use format: gen 5598880089');
-      const prefix = v.split(' ')[1].trim();
-      if(prefix.length < 4) return alert('prefix too short');
-      // coins check: every 10 generate => -10 coins (we'll assume each click generates 12 items)
-      const genCount = 12;
-      const costPerClick = Math.floor(genCount/10)*10; // example: 12 -> cost 10
-      if(USER.coins < costPerClick) return alert('Not enough coins. Earn more.');
-      // produce
-      const output = generateFormatted(prefix, genCount);
-      q('gen-output').textContent = output;
-      // update user counters in Firestore (increment generated and deduct coins)
-      try {
-        const uref = doc(db,'users',USER.id);
-        await updateDoc(uref, {
-          coins: USER.coins - costPerClick,
-          generated: ( (typeof USER.generated === 'number'? USER.generated:0) + genCount )
-        });
-      } catch(e){ console.error('update user error', e); }
-    });
-
-    q('copy-gen').addEventListener('click', ()=> {
-      navigator.clipboard.writeText(q('gen-output').textContent || '').then(()=> alert('Copied'));
-    });
-
-    // ---------- BIN CHECKER ----------
-    async function checkSingleBin(bin){
-      bin = bin.trim();
-      if(!bin) return { bin, ok:false, info:null, source:'empty' };
-      // Try custom API first
-      if(BIN_API_ENDPOINT){
-        try{
-          const res = await fetch(BIN_API_ENDPOINT + encodeURIComponent(bin));
-          if(res.ok){ const j=await res.json(); return { bin, ok: !!j.scheme || !!j.type, info:j, source:'api' }; }
-        }catch(e){ console.warn('api error', e); }
-      }
-      // try public binlist.net (rate limited)
-      try {
-        const r = await fetch('https://lookup.binlist.net/' + bin);
-        if(r.ok){
-          const j = await r.json();
-          return { bin, ok: true, info: j, source:'binlist' };
-        }
-      } catch(e){ /* ignore */ }
-      // dummy deterministic fallback
-      const hash = deterministicHash(bin);
-      const alive = (hash % 3) === 0; // deterministic but pseudo-random
-      return { bin, ok: alive, info: null, source:'dummy' };
-    }
-
-    q('check-btn').addEventListener('click', async ()=>{
-      const raw = q('check-input').value.trim();
-      if(!raw) return alert('Paste at least one BIN');
-      const bins = raw.split(/\r?\n/).map(s=>s.trim()).filter(Boolean).slice(0,10);
-      q('check-result').innerHTML = '<div class="text-sm text-gray-500">Checking...</div>';
-      // increment user's checks
-      try { await updateDoc(doc(db,'users',USER.id), { checks: (USER.checks||0)+bins.length }); } catch(e){/*ignore*/}
-
-      const parts = [];
-      for(const b of bins){
-        const res = await checkSingleBin(b);
-        const el = document.createElement('div');
-        el.className = 'p-2 rounded';
-        el.style.background = res.ok ? '#ecfccb' : '#fee2e2';
-        el.innerHTML = `<strong>${res.bin}</strong> — ${res.ok ? 'LIVE' : 'DEAD'} <span class="text-xs text-gray-600">(${res.source})</span>`;
-        q('check-result').appendChild(el);
-      }
-    });
-
-    q('copy-result').addEventListener('click', ()=> {
-      const t = Array.from(q('check-result').querySelectorAll('div')).map(d=> d.textContent.trim()).join('\n');
-      navigator.clipboard.writeText(t).then(()=> alert('Copied'));
-    });
-
-    // ---------- Monetag Earn (Rewarded) ----------
-    q('earn-btn').addEventListener('click', async ()=>{
-      // call SDK rewarded (your example: show_10218802('pop') or .then)
-      try {
-        if(typeof show_10218802 === 'function'){
-          // use popup rewarded variant
-          show_10218802('pop').then(async ()=>{
-            // rewarded: add coins
-            const add = 10;
-            try { await updateDoc(doc(db,'users',USER.id), { coins: (USER.coins||0) + add }); alert('You got +'+add+' coins!'); } catch(e){ console.error(e); }
-          }).catch(e => { console.warn('ad error', e); alert('Ad not available'); });
-        } else {
-          alert('Ad SDK not loaded');
-        }
-      } catch(e){ console.error(e); alert('Ad error: '+e.message); }
-    });
-
-  </script>
+</script>
 </body>
-    </html>
+</html>
